@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:qr_code/qr_scan_page.dart';
-
 import 'home_page.dart';
 
 void main() {
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(        
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Qr Code',),
+      home: const MyHomePage(title: 'Xuất Kho',),
     );
   }
 }

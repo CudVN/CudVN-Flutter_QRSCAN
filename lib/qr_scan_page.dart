@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:qr_code/home_page.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScan extends StatefulWidget {
@@ -36,25 +35,69 @@ class _QRScanState extends State<QRScan> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner'),
-        actions: [
-          IconButton(
-              icon: const Icon(
-                Icons.qr_code_sharp,
-                color: Colors.white,
-                size: 30,
-              ),
-              onPressed: () {})
-        ],
+        title: const Text('Scanner'),        
       ),
       body: Stack(
         alignment: Alignment.center,
         children: [
           buildQrView(context),
+          Positioned(child: buildResult(), bottom:10),
+          Positioned(child: buildControlButtons(), top:10)
         ],
       ),
     );
   }
+  buildControlButtons(){
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white24,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: FutureBuilder<bool?>(future: controller?.getFlashStatus(), builder: (context, snapshot) {
+              if (snapshot.data != null) {
+                return Icon(
+                  snapshot.data! ? Icons.flash_on : Icons.flash_off);
+              } else {
+                return Container();
+              }
+            },),
+            onPressed: () async {
+              await controller?.toggleFlash();
+              setState(() {              
+              });
+            }),
+          IconButton(
+           icon: FutureBuilder(future: controller?.getCameraInfo(), builder: (context, snapshot) {
+              if (snapshot.data != null) {
+                return const Icon( Icons.switch_camera);
+              } else {
+                return Container();
+              }
+            },),
+            onPressed: () async {
+              await controller?.flipCamera();
+              setState(() {              
+              });
+            }),
+        ],
+      ),
+    );
+  }
+   buildResult() {
+     return Container(
+       padding: const EdgeInsets.all(12),
+       decoration: BoxDecoration(
+         borderRadius: BorderRadius.circular(8),
+       color: Colors.white24,
+     ),child: Text( barcode!=null ? 'Code: ${barcode!.code}' : 'Scan a code!', maxLines: 3,));
+   }
 
   Widget buildQrView(BuildContext context) => QRView(
         key: qrKey,
@@ -74,11 +117,18 @@ class _QRScanState extends State<QRScan> {
     });
     controller.scannedDataStream.listen((barcode) {
       setState(() {
-        controller.pauseCamera();
-        this.barcode = barcode;
-        if (this.barcode!.code != null) {
-          FlutterRingtonePlayer.playNotification();
-          showDialog(
+        //controller.pauseCamera();        
+        if (barcode.code != null) {
+          var codeTG = this.barcode?.code;
+         
+          if(codeTG != barcode.code)
+          {
+             this.barcode = barcode;
+             FlutterRingtonePlayer.playNotification();
+          }        
+          
+         
+          /* showDialog(
               context: context,
               builder: (context) =>  AlertDialog(                    
                     title: const Text(
@@ -105,10 +155,12 @@ class _QRScanState extends State<QRScan> {
                         },
                       )
                     ],
-                  )); 
+                  ));  */
         }
       });
     });
   }
+
+ 
 
 }
