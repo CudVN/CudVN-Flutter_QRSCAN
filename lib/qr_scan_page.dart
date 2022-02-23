@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_code/object/qr.dart';
+import 'package:qr_code/provider/add_qr.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScan extends StatefulWidget {
@@ -13,7 +16,9 @@ class QRScan extends StatefulWidget {
 
 class _QRScanState extends State<QRScan> {
   final qrKey = GlobalKey(debugLabel: 'QR');
+  final _formKey = GlobalKey<FormState>();
   Barcode? barcode;
+  String? scaned;
   QRViewController? controller;
 
   @override
@@ -35,19 +40,20 @@ class _QRScanState extends State<QRScan> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner'),        
+        title: const Text('Scanner'),
       ),
       body: Stack(
         alignment: Alignment.center,
         children: [
           buildQrView(context),
-          Positioned(child: buildResult(), bottom:10),
-          Positioned(child: buildControlButtons(), top:10)
+          Positioned(child: buildResult(), bottom: 50),
+          Positioned(child: buildControlButtons(), top: 10)
         ],
       ),
     );
   }
-  buildControlButtons(){
+
+  buildControlButtons() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -60,44 +66,58 @@ class _QRScanState extends State<QRScan> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            icon: FutureBuilder<bool?>(future: controller?.getFlashStatus(), builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return Icon(
-                  snapshot.data! ? Icons.flash_on : Icons.flash_off);
-              } else {
-                return Container();
-              }
-            },),
-            onPressed: () async {
-              await controller?.toggleFlash();
-              setState(() {              
-              });
-            }),
+              icon: FutureBuilder<bool?>(
+                future: controller?.getFlashStatus(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return Icon(
+                        snapshot.data! ? Icons.flash_on : Icons.flash_off);
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+              onPressed: () async {
+                await controller?.toggleFlash();
+                setState(() {});
+              }),
           IconButton(
-           icon: FutureBuilder(future: controller?.getCameraInfo(), builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return const Icon( Icons.switch_camera);
-              } else {
-                return Container();
-              }
-            },),
-            onPressed: () async {
-              await controller?.flipCamera();
-              setState(() {              
-              });
-            }),
+              icon: FutureBuilder(
+                future: controller?.getCameraInfo(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return const Icon(Icons.switch_camera);
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+              onPressed: () async {
+                await controller?.flipCamera();
+                setState(() {});
+              }),
         ],
       ),
     );
   }
-   buildResult() {
-     return Container(
-       padding: const EdgeInsets.all(12),
-       decoration: BoxDecoration(
-         borderRadius: BorderRadius.circular(8),
-       color: Colors.white24,
-     ),child: Text( barcode!=null ? 'Code: ${barcode!.code}' : 'Scan a code!', maxLines: 3,));
-   }
+
+  buildResult() {
+    return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: scaned == null ? Colors.white24 : Colors.green,
+          
+        ),
+        child: Text(
+          scaned == null
+              ? (barcode != null ? 'Code: ${barcode!.code}' : 'Scan a code!')
+              : 'Đã quét',
+          maxLines: 3,
+          style: const TextStyle(color:  Colors.white , fontWeight: FontWeight.bold
+          ),
+        ));
+  }
 
   Widget buildQrView(BuildContext context) => QRView(
         key: qrKey,
@@ -117,17 +137,20 @@ class _QRScanState extends State<QRScan> {
     });
     controller.scannedDataStream.listen((barcode) {
       setState(() {
-        //controller.pauseCamera();        
+        //controller.pauseCamera();
         if (barcode.code != null) {
-          var codeTG = this.barcode?.code;
-         
-          if(codeTG != barcode.code)
-          {
-             this.barcode = barcode;
-             FlutterRingtonePlayer.playNotification();
-          }        
-          
-         
+          final provider = Provider.of<AddQRCode>(context, listen: false);
+          final foundQR =
+              provider.qrs.where((element) => element.qrCode == barcode.code);
+          if (foundQR.isEmpty) {
+            this.barcode = barcode;
+            final qr = QR(qrCode: this.barcode!.code, isDone: false);
+            provider.addQrCode(qr);
+            FlutterRingtonePlayer.playNotification();
+          } else if (foundQR.isNotEmpty) {
+            scaned = 'Đã quét';
+          }
+
           /* showDialog(
               context: context,
               builder: (context) =>  AlertDialog(                    
@@ -160,7 +183,4 @@ class _QRScanState extends State<QRScan> {
       });
     });
   }
-
- 
-
 }

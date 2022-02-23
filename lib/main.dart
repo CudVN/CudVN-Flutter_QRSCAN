@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:qr_code/provider/add_qr.dart';
 import 'home_page.dart';
 
 void main() {
@@ -11,13 +13,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Qr Code',
-      theme: ThemeData(        
-        primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+      create: (context) =>AddQRCode(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Qr Code',
+        theme: ThemeData(        
+          primarySwatch: Colors.blue,
+        ),
+        home: const MyHomePage(title: 'Xuất Kho',),
       ),
-      home: const MyHomePage(title: 'Xuất Kho',),
     );
   }
 }
