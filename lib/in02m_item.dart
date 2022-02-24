@@ -15,7 +15,7 @@ class IN02MList extends StatelessWidget {
         itemBuilder: (context, index) {
           return GestureDetector(
             child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 1),
+              margin: const EdgeInsets.symmetric(vertical: 2),
               padding: const EdgeInsets.all(4),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
