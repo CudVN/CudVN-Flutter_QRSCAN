@@ -1,7 +1,9 @@
+import 'package:qr_code/object/xuatkho_tojson.dart';
+
 class IN02M {
   String? oid;
   String? voucherNo;
-  DateTime? voucherDate;
+  String? voucherDate;
   String? remark;
   String? employeeID;
   String? employeeName;
@@ -10,7 +12,7 @@ class IN02M {
   String? remark2;
   String? customerID;
   String? customerName;
-  String? seris;
+  List<SerialViewItem>? seris;
 
   IN02M(
       {this.oid,
@@ -29,7 +31,7 @@ class IN02M {
   IN02M.fromJson(Map<String, dynamic> json) {
     oid = json['oid'];
     voucherNo = json['voucherNo'];
-    voucherDate = DateTime.parse( json['voucherDate']);
+    voucherDate = json['voucherDate'];
     remark = json['remark'];
     employeeID = json['employeeID'];
     employeeName = json['employeeName'];
@@ -54,7 +56,9 @@ class IN02M {
     data['remark2'] = remark2;
     data['customerID'] = customerID;
     data['customerName'] = customerName;
-    data['seris'] = seris;
+    List<Map<String, dynamic>>? _seris =
+        seris != null ? seris!.map((e) => e.toJson()).toList() : null;
+    data['seris'] = _seris;
     return data;
   }
 }

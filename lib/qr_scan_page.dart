@@ -16,7 +16,6 @@ class QRScan extends StatefulWidget {
 
 class _QRScanState extends State<QRScan> {
   final qrKey = GlobalKey(debugLabel: 'QR');
-  final _formKey = GlobalKey<FormState>();
   Barcode? barcode;
   String? scaned;
   QRViewController? controller;
@@ -107,15 +106,14 @@ class _QRScanState extends State<QRScan> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: scaned == null ? Colors.white24 : Colors.green,
-          
         ),
         child: Text(
           scaned == null
               ? (barcode != null ? 'Code: ${barcode!.code}' : 'Scan a code!')
               : 'Đã quét',
           maxLines: 3,
-          style: const TextStyle(color:  Colors.white , fontWeight: FontWeight.bold
-          ),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ));
   }
 

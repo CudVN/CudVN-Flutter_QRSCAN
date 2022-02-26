@@ -13,11 +13,11 @@ class QrItem extends StatelessWidget {
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Slidable(
-            endActionPane: ActionPane(motion: ScrollMotion(), children: [
+            endActionPane: ActionPane(motion: const ScrollMotion(), children: [
               SlidableAction(
                 flex: 1,
                 onPressed: (_) => deleteQrCode(context, qr),
-                backgroundColor: Color(0xFFFE4A49),
+                backgroundColor: const Color(0xFFFE4A49),
                 foregroundColor: Colors.white,
                 icon: Icons.delete,
                 label: 'Delete',
