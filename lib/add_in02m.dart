@@ -59,15 +59,14 @@ class _AddIN02MState extends State<AddIN02M> {
   }
 
   Future<IN02M> createIN02M(http.Client client, IN02M in02m) async {
-    var js = jsonEncode(<String, dynamic>{'user': in02m.toJson()});
-
     final response = await client.post(
       Uri.parse(base + 'IN02M/'),
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'Content-Type': 'application/json',
       },
 
-      body: js, // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
+      body: jsonEncode(in02m
+          .toJson()), // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
     );
 
     if (response.statusCode == 201) {
@@ -114,7 +113,7 @@ class _AddIN02MState extends State<AddIN02M> {
                       width: 10,
                       height: 10,
                       lotNumber: '2-1ABM00051_020',
-                      serialNumber: 'ABM0005100016',
+                      serialNumber: 'ABM0005100011',
                       crackSize: '',
                       crackAcreage: 0,
                       actualQty: 4.070),
@@ -123,7 +122,7 @@ class _AddIN02MState extends State<AddIN02M> {
                       width: 20,
                       height: 30,
                       lotNumber: '2-1ABM00051_020',
-                      serialNumber: 'ABM0005100014',
+                      serialNumber: 'ABM0005100017',
                       crackSize: '',
                       crackAcreage: 0,
                       actualQty: 4.070),
