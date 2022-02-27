@@ -88,9 +88,7 @@ class PageDetail extends StatelessWidget {
                             if (snapshot.hasError) {
                               return const Text('Không có dữ liệu');
                             } else if (snapshot.hasData) {
-                              return IN02D0List(
-                                in02D0s: snapshot.data!,
-                              );
+                              return IN02D0List(in02D0s: snapshot.data!);
                             } else {
                               return const CircularProgressIndicator();
                             }
@@ -99,8 +97,18 @@ class PageDetail extends StatelessWidget {
           ),
         ));
   }
+}
 
-  Widget IN02D0List({required List<SerialView> in02D0s}) {
+class IN02D0List extends StatelessWidget {
+  const IN02D0List({
+    Key? key,
+    required this.in02D0s,
+  }) : super(key: key);
+
+  final List<SerialView> in02D0s;
+
+  @override
+  Widget build(BuildContext context) {
     return ListView.builder(
         itemCount: in02D0s.length,
         itemBuilder: (context, index) {

@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code/constance.dart';
+import 'package:qr_code/object/employee.dart';
 import 'package:qr_code/object/khachhang.dart';
-import 'package:qr_code/object/nhanvien.dart';
 import 'package:qr_code/object/qr.dart';
+import 'package:qr_code/object/serial.dart';
 import 'package:qr_code/object/xuatkho.dart';
 import 'package:qr_code/object/xuatkho_tojson.dart';
 import 'package:qr_code/provider/add_qr.dart';
@@ -25,13 +26,18 @@ class AddIN02M extends StatefulWidget {
 class _AddIN02MState extends State<AddIN02M> {
   String? _mySelectionUser;
   String? _mySelectionCustomer;
-  List<User> users = [];
+  List<Employee> employees = [];
   List<Customer> customers = [];
-  DateTime? selectedDate;
+  List<SerialView> serials = [];
+
+  DateTime? selectedDate = DateTime.now();
   String time = DateFormat('dd/MM/yyyy').format(DateTime.now());
   final qrTextController = TextEditingController();
+  final phieuXuat = TextEditingController();
+  final ghiChu = TextEditingController();
   bool? added;
 
+  //Lấy danh sách khách hàng từ db
   Future<List<Customer>> fetchCustomer(http.Client client) async {
     final response = await client.get(Uri.parse(base + 'Customer/'));
     setState(() {
@@ -45,20 +51,22 @@ class _AddIN02MState extends State<AddIN02M> {
     return parsed.map<Customer>((json) => Customer.fromJson(json)).toList();
   }
 
-  Future<List<User>> fetchUser(http.Client client) async {
-    final response = await client.get(Uri.parse(base + 'User/'));
+  //Lấy danh sách user từ db
+  Future<List<Employee>> fetchUser(http.Client client) async {
+    final response = await client.get(Uri.parse(base + 'Employee/'));
     setState(() {
-      users = parseUsers(response.body);
+      employees = parseUsers(response.body);
     });
-    return users;
+    return employees;
   }
 
-  List<User> parseUsers(String responseBody) {
+  List<Employee> parseUsers(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-    return parsed.map<User>((json) => User.fromJson(json)).toList();
+    return parsed.map<Employee>((json) => Employee.fromJson(json)).toList();
   }
 
-  Future<IN02M> createIN02M(http.Client client, IN02M in02m) async {
+  //Lưu dữ liệu khi tạo phiếu xuất kho
+  Future<int> createIN02M(http.Client client, IN02M in02m) async {
     final response = await client.post(
       Uri.parse(base + 'IN02M/'),
       headers: <String, String>{
@@ -69,15 +77,29 @@ class _AddIN02MState extends State<AddIN02M> {
           .toJson()), // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
     );
 
-    if (response.statusCode == 201) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      return IN02M.fromJson(jsonDecode(response.body));
+    if (response.statusCode < 200 || response.statusCode >= 400) {
+      return 0; //throw Exception('Failed to create');
     } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Failed to create');
+      return 1; //return IN02M.fromJson(jsonDecode(response.body));
     }
+  }
+
+  //Kiểm tra danh sách serial trên db
+  Future<List<SerialView>> fetchSerial(
+      http.Client client, String? _serial) async {
+    final uri = Uri.parse(base + 'IN02D0/GetBySeri/')
+        .replace(queryParameters: {'seriNumber': _serial});
+    final response = await client.get(uri);
+
+    setState(() {
+      serials = parseSerial(response.body);
+    });
+    return serials;
+  }
+
+  List<SerialView> parseSerial(String responseBody) {
+    final parsed = jsonDecode('[$responseBody]').cast<Map<String, dynamic>>();
+    return parsed.map<SerialView>((json) => SerialView.fromJson(json)).toList();
   }
 
   @override
@@ -85,12 +107,66 @@ class _AddIN02MState extends State<AddIN02M> {
     super.initState();
     fetchUser(http.Client());
     fetchCustomer(http.Client());
+    phieuXuat.addListener(() {});
+    ghiChu.addListener(() {});
   }
 
   @override
   void dispose() {
     qrTextController.dispose();
+    phieuXuat.dispose();
+    ghiChu.dispose();
     super.dispose();
+  }
+
+  Future<void> saveIN02M(List<QR> qrs) async {
+    for (var e in qrs) {
+      await fetchSerial(http.Client(), e.qrCode);
+      if (serials.isNotEmpty) {
+        e.isDone = true;
+      }
+    }
+    //Nếu danh sách seri không có lỗi - Lưu dữ liệu
+    if (qrs.where((e) => e.isDone == false).isNotEmpty) {
+      List<SerialViewItem> _lstSerial = [];
+      for (var e in qrs) {
+        _lstSerial.add(
+          SerialViewItem(
+              length: 0,
+              width: 0,
+              height: 0,
+              lotNumber: '',
+              serialNumber: e.qrCode,
+              crackSize: '',
+              crackAcreage: 0,
+              actualQty: 0),
+        );
+      }
+
+      var _in02 = IN02M(
+          oid: const Uuid().v4(),
+          voucherNo: phieuXuat.text,
+          voucherDate: selectedDate.toString(),
+          remark: '',
+          employeeID: _mySelectionUser,
+          employeeName: employees
+              .where((e) => e.oid == _mySelectionUser)
+              .first
+              .employeeName,
+          createDate: DateTime.now().toString(),
+          createBy: 'ADMIN',
+          remark2: 'remark2',
+          customerID: _mySelectionCustomer,
+          customerName: customers
+              .where((e) => e.oid == _mySelectionCustomer)
+              .first
+              .shortName,
+          seris: _lstSerial);
+
+      createIN02M(http.Client(), _in02);
+    } else {
+      NotiBar.showSnackBar(context, 'Kiểm tra lại QR Code');
+    }
   }
 
   @override
@@ -106,44 +182,7 @@ class _AddIN02MState extends State<AddIN02M> {
                 size: 30,
               ),
               onPressed: () {
-                List<SerialViewItem> _lstSerial;
-                _lstSerial = [
-                  SerialViewItem(
-                      length: 10,
-                      width: 10,
-                      height: 10,
-                      lotNumber: '2-1ABM00051_020',
-                      serialNumber: 'ABM0005100011',
-                      crackSize: '',
-                      crackAcreage: 0,
-                      actualQty: 4.070),
-                  SerialViewItem(
-                      length: 20,
-                      width: 20,
-                      height: 30,
-                      lotNumber: '2-1ABM00051_020',
-                      serialNumber: 'ABM0005100017',
-                      crackSize: '',
-                      crackAcreage: 0,
-                      actualQty: 4.070),
-                ];
-                // print(jsonEncode(_lstSerial));
-                var _in02 = IN02M(
-                    oid: const Uuid().v4(),
-                    voucherNo: 'XK006',
-                    voucherDate: DateTime.now().toString(),
-                    remark: '',
-                    employeeID: '379b3ff8-1ea9-4633-a6c5-50f722374bd4',
-                    employeeName: 'Phan Văn Nghĩa',
-                    createDate: DateTime.now().toString(),
-                    createBy: 'ADMIN',
-                    remark2: 'remark2',
-                    customerID: 'dac50b18-5fdd-4913-9296-7bc75f687af2',
-                    customerName: 'VanPhuc-A5',
-                    seris: _lstSerial);
-
-                createIN02M(http.Client(), _in02);
-                //  print(_in02.toJson());
+                saveIN02M(qrs);
               })
         ]),
         body: Center(
@@ -177,6 +216,7 @@ class _AddIN02MState extends State<AddIN02M> {
                   ),
                   Expanded(
                     child: TextFormField(
+                      controller: phieuXuat,
                       maxLines: 1,
                       decoration: const InputDecoration(
                           hintText: 'Phiếu xuất số', border: InputBorder.none),
@@ -189,10 +229,11 @@ class _AddIN02MState extends State<AddIN02M> {
                   SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: DropdownButton(
+                      isExpanded: true,
                       hint: const Text('Chọn nhân viên'),
-                      items: users.map((item) {
+                      items: employees.map((item) {
                         return DropdownMenuItem(
-                          child: Text(item.fullName!),
+                          child: Text(item.employeeName!),
                           value: item.oid,
                         );
                       }).toList(),
@@ -226,6 +267,7 @@ class _AddIN02MState extends State<AddIN02M> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                        controller: ghiChu,
                         maxLines: 2,
                         decoration: const InputDecoration(
                           hintText: 'Ghi Chú',
@@ -251,9 +293,12 @@ class _AddIN02MState extends State<AddIN02M> {
                               Provider.of<AddQRCode>(context, listen: false);
                           final foundQR = provider.qrs.where((element) =>
                               element.qrCode == qrTextController.text);
-                          if (foundQR.isEmpty) {
+                          if (foundQR.isEmpty &&
+                              qrTextController.text.isNotEmpty) {
                             final qr = QR(
-                                qrCode: qrTextController.text, isDone: false);
+                                qrCode: qrTextController.text,
+                                isDone: false,
+                                isDel: false);
                             provider.addQrCode(qr);
                             qrTextController.clear();
                           } else {
@@ -262,6 +307,14 @@ class _AddIN02MState extends State<AddIN02M> {
                           }
                         },
                         child: const Icon(Icons.add_box),
+                      )),
+                  SizedBox(
+                      width: 40,
+                      child: TextButton(
+                        onPressed: () {
+                          deleteQrCodes(context);
+                        },
+                        child: const Icon(Icons.delete),
                       )),
                   SizedBox(
                       width: 40,
@@ -297,4 +350,10 @@ class _AddIN02MState extends State<AddIN02M> {
           ),
         ));
   }
+}
+
+void deleteQrCodes(BuildContext context) {
+  final provider = Provider.of<AddQRCode>(context, listen: false);
+  provider.removeQrCodes();
+  NotiBar.showSnackBar(context, 'Đã danh sách mã QR');
 }

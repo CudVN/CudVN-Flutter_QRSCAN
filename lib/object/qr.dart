@@ -1,5 +1,6 @@
 class QR {
   String? qrCode;
   bool? isDone;
-  QR({this.qrCode, this.isDone});
+  bool? isDel;
+  QR({this.qrCode, this.isDone, this.isDel});
 }

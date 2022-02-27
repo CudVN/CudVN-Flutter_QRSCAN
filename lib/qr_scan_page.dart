@@ -142,7 +142,8 @@ class _QRScanState extends State<QRScan> {
               provider.qrs.where((element) => element.qrCode == barcode.code);
           if (foundQR.isEmpty) {
             this.barcode = barcode;
-            final qr = QR(qrCode: this.barcode!.code, isDone: false);
+            final qr =
+                QR(qrCode: this.barcode!.code, isDone: false, isDel: false);
             provider.addQrCode(qr);
             FlutterRingtonePlayer.playNotification();
           } else if (foundQR.isNotEmpty) {

@@ -5,10 +5,15 @@ import 'package:qr_code/object/qr.dart';
 import 'package:qr_code/provider/add_qr.dart';
 import 'package:qr_code/widget/noti_bar.dart';
 
-class QrItem extends StatelessWidget {
+class QrItem extends StatefulWidget {
   final QR qr;
   const QrItem({Key? key, required this.qr}) : super(key: key);
 
+  @override
+  State<QrItem> createState() => _QrItemState();
+}
+
+class _QrItemState extends State<QrItem> {
   @override
   Widget build(BuildContext context) => ClipRRect(
         borderRadius: BorderRadius.circular(8),
@@ -16,14 +21,14 @@ class QrItem extends StatelessWidget {
             endActionPane: ActionPane(motion: const ScrollMotion(), children: [
               SlidableAction(
                 flex: 1,
-                onPressed: (_) => deleteQrCode(context, qr),
+                onPressed: (_) => deleteQrCode(context, widget.qr),
                 backgroundColor: const Color(0xFFFE4A49),
                 foregroundColor: Colors.white,
                 icon: Icons.delete,
                 label: 'Delete',
               ),
             ]),
-            key: Key(qr.qrCode!),
+            key: Key(widget.qr.qrCode!),
             child: buildQrItem(context)),
       );
 
@@ -32,30 +37,33 @@ class QrItem extends StatelessWidget {
       color: Colors.blueAccent,
       margin: const EdgeInsets.symmetric(vertical: 1),
       padding: const EdgeInsets.all(2),
-      child: Row(
-        children: [
-          Checkbox(
-              activeColor: Colors.lightGreen,
-              checkColor: Colors.white,
-              value: qr.isDone,
-              onChanged: (_) {}),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                qr.qrCode!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.qr.qrCode!,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                  fontSize: 20,
                 ),
-              )
-            ],
-          ))
-        ],
+              ),
+            ),
+            const SizedBox(
+              width: 20,
+            ),
+            Checkbox(
+                activeColor: Colors.lightGreen,
+                checkColor: Colors.white,
+                value: widget.qr.isDel,
+                onChanged: (value) {
+                  widget.qr.isDel = value;
+                  setState(() {});
+                })
+          ],
+        ),
       ),
     );
   }

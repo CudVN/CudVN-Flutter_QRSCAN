@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class SerialView {
   String? oid;
   String? iN02ID;
