@@ -34,7 +34,7 @@ class _QrItemState extends State<QrItem> {
 
   Widget buildQrItem(BuildContext context) {
     return Container(
-      color: Colors.blueAccent,
+      color: widget.qr.isDone == true ? Colors.green : Colors.blueAccent,
       margin: const EdgeInsets.symmetric(vertical: 1),
       padding: const EdgeInsets.all(2),
       child: Padding(

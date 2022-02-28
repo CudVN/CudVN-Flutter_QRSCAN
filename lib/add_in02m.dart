@@ -36,6 +36,9 @@ class _AddIN02MState extends State<AddIN02M> {
   final phieuXuat = TextEditingController();
   final ghiChu = TextEditingController();
   bool? added;
+  bool _validatePhieuXuat = false;
+  final _formKey = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
 
   //Lấy danh sách khách hàng từ db
   Future<List<Customer>> fetchCustomer(http.Client client) async {
@@ -127,7 +130,7 @@ class _AddIN02MState extends State<AddIN02M> {
       }
     }
     //Nếu danh sách seri không có lỗi - Lưu dữ liệu
-    if (qrs.where((e) => e.isDone == false).isNotEmpty) {
+    if (qrs.where((e) => e.isDone == false).isEmpty && qrs.isNotEmpty) {
       List<SerialViewItem> _lstSerial = [];
       for (var e in qrs) {
         _lstSerial.add(
@@ -142,7 +145,6 @@ class _AddIN02MState extends State<AddIN02M> {
               actualQty: 0),
         );
       }
-
       var _in02 = IN02M(
           oid: const Uuid().v4(),
           voucherNo: phieuXuat.text,
@@ -162,7 +164,6 @@ class _AddIN02MState extends State<AddIN02M> {
               .first
               .shortName,
           seris: _lstSerial);
-
       createIN02M(http.Client(), _in02);
     } else {
       NotiBar.showSnackBar(context, 'Kiểm tra lại QR Code');
@@ -174,6 +175,7 @@ class _AddIN02MState extends State<AddIN02M> {
     final provider = Provider.of<AddQRCode>(context);
     final qrs = provider.qrs;
     return Scaffold(
+        key: _formKey2,
         appBar: AppBar(title: const Text('Thêm mới'), actions: [
           IconButton(
               icon: const Icon(
@@ -182,171 +184,192 @@ class _AddIN02MState extends State<AddIN02M> {
                 size: 30,
               ),
               onPressed: () {
-                saveIN02M(qrs);
+                setState(() {
+                  phieuXuat.text.isEmpty
+                      ? _validatePhieuXuat = true
+                      : _validatePhieuXuat = false;
+                });
+                if (_formKey.currentState!.validate()) {
+                  saveIN02M(qrs);
+                }
               })
         ]),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 1.6,
-                    child: DropdownButton(
-                      isExpanded: true,
-                      hint: const Text('Chọn khách hàng'),
-                      items: customers.map((item) {
-                        return DropdownMenuItem(
-                          child: Text(item.shortName!),
-                          value: item.oid,
-                        );
-                      }).toList(),
-                      onChanged: (newVal) {
-                        setState(() {
-                          _mySelectionCustomer = newVal.toString();
-                        });
-                      },
-                      value: _mySelectionCustomer,
+        body: Form(
+          key: _formKey,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 1.6,
+                          child: DropdownButtonFormField(
+                            validator: (value) =>
+                                value == null ? 'Bắt buộc' : null,
+                            isExpanded: true,
+                            hint: const Text('Chọn khách hàng'),
+                            items: customers.map((item) {
+                              return DropdownMenuItem(
+                                child: Text(item.shortName!),
+                                value: item.oid,
+                              );
+                            }).toList(),
+                            onChanged: (newVal) {
+                              setState(() {
+                                _mySelectionCustomer = newVal.toString();
+                              });
+                            },
+                            value: _mySelectionCustomer,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            controller: phieuXuat,
+                            maxLines: 1,
+                            decoration: InputDecoration(
+                                errorText: _validatePhieuXuat
+                                    ? 'Không bỏ trống'
+                                    : null,
+                                hintText: 'Phiếu xuất số',
+                                border: InputBorder.none),
+                          ),
+                        )
+                      ],
                     ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: TextFormField(
-                      controller: phieuXuat,
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                          hintText: 'Phiếu xuất số', border: InputBorder.none),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width / 2,
+                          child: DropdownButtonFormField(
+                            elevation: 5,
+                            validator: (value) =>
+                                value == null ? 'Bắt buộc' : null,
+                            isExpanded: true,
+                            hint: const Text('Chọn nhân viên'),
+                            items: employees.map((item) {
+                              return DropdownMenuItem(
+                                child: Text(item.employeeName!),
+                                value: item.oid,
+                              );
+                            }).toList(),
+                            onChanged: (newVal) {
+                              setState(() {
+                                _mySelectionUser = newVal.toString();
+                              });
+                            },
+                            value: _mySelectionUser,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            selectedDate = (await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2025)));
+                            setState(() {
+                              if (selectedDate != null) {
+                                time = DateFormat('dd/MM/yyyy')
+                                    .format(selectedDate!);
+                              }
+                            });
+                          },
+                          child: const Icon(Icons.calendar_month_rounded),
+                        ),
+                        Expanded(child: Text(time)),
+                      ],
                     ),
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
-                    child: DropdownButton(
-                      isExpanded: true,
-                      hint: const Text('Chọn nhân viên'),
-                      items: employees.map((item) {
-                        return DropdownMenuItem(
-                          child: Text(item.employeeName!),
-                          value: item.oid,
-                        );
-                      }).toList(),
-                      onChanged: (newVal) {
-                        setState(() {
-                          _mySelectionUser = newVal.toString();
-                        });
-                      },
-                      value: _mySelectionUser,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                              controller: ghiChu,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                hintText: 'Ghi Chú',
+                              )),
+                        ),
+                      ],
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      selectedDate = (await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2025)));
-                      setState(() {
-                        if (selectedDate != null) {
-                          time = DateFormat('dd/MM/yyyy').format(selectedDate!);
-                        }
-                      });
-                    },
-                    child: const Icon(Icons.calendar_month_rounded),
-                  ),
-                  Expanded(child: Text(time)),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                        controller: ghiChu,
-                        maxLines: 2,
-                        decoration: const InputDecoration(
-                          hintText: 'Ghi Chú',
-                        )),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: qrTextController,
-                      maxLines: 1,
-                      decoration: const InputDecoration(
-                          hintText: 'Nhập mã hoặc thêm bằng QR code'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: qrTextController,
+                            maxLines: 1,
+                            decoration: const InputDecoration(
+                                hintText: 'Nhập mã hoặc thêm bằng QR code'),
+                          ),
+                        ),
+                        SizedBox(
+                            width: 40,
+                            child: TextButton(
+                              onPressed: () {
+                                final provider = Provider.of<AddQRCode>(context,
+                                    listen: false);
+                                final foundQR = provider.qrs.where((element) =>
+                                    element.qrCode == qrTextController.text);
+                                if (foundQR.isEmpty &&
+                                    qrTextController.text.isNotEmpty) {
+                                  final qr = QR(
+                                      qrCode: qrTextController.text,
+                                      isDone: false,
+                                      isDel: false);
+                                  provider.addQrCode(qr);
+                                  qrTextController.clear();
+                                } else {
+                                  NotiBar.showSnackBar(
+                                      context, 'Mã này đã được thêm');
+                                }
+                              },
+                              child: const Icon(Icons.add_box),
+                            )),
+                        SizedBox(
+                            width: 40,
+                            child: TextButton(
+                              onPressed: () {
+                                deleteQrCodes(context);
+                              },
+                              child: const Icon(Icons.delete),
+                            )),
+                        SizedBox(
+                            width: 40,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => const QRScan()));
+                              },
+                              child: const Icon(Icons.qr_code_2),
+                            )),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                      width: 40,
-                      child: TextButton(
-                        onPressed: () {
-                          final provider =
-                              Provider.of<AddQRCode>(context, listen: false);
-                          final foundQR = provider.qrs.where((element) =>
-                              element.qrCode == qrTextController.text);
-                          if (foundQR.isEmpty &&
-                              qrTextController.text.isNotEmpty) {
-                            final qr = QR(
-                                qrCode: qrTextController.text,
-                                isDone: false,
-                                isDel: false);
-                            provider.addQrCode(qr);
-                            qrTextController.clear();
-                          } else {
-                            NotiBar.showSnackBar(
-                                context, 'Mã này đã được thêm');
-                          }
-                        },
-                        child: const Icon(Icons.add_box),
-                      )),
-                  SizedBox(
-                      width: 40,
-                      child: TextButton(
-                        onPressed: () {
-                          deleteQrCodes(context);
-                        },
-                        child: const Icon(Icons.delete),
-                      )),
-                  SizedBox(
-                      width: 40,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const QRScan()));
-                        },
-                        child: const Icon(Icons.qr_code_2),
-                      )),
-                ],
-              ),
-              Expanded(
-                child: qrs.isEmpty
-                    ? const Center(
-                        child: Text('Không có dữ liệu'),
-                      )
-                    : ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.all(2),
-                        separatorBuilder: (context, index) => Container(
-                              height: 2,
-                            ),
-                        itemCount: qrs.length,
-                        itemBuilder: (context, index) {
-                          final qr = qrs[index];
-                          return QrItem(qr: qr);
-                        }),
-              )
-            ]),
+                    Expanded(
+                      child: qrs.isEmpty
+                          ? const Center(
+                              child: Text('Không có dữ liệu'),
+                            )
+                          : ListView.separated(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.all(2),
+                              separatorBuilder: (context, index) => Container(
+                                    height: 2,
+                                  ),
+                              itemCount: qrs.length,
+                              itemBuilder: (context, index) {
+                                final qr = qrs[index];
+                                return QrItem(qr: qr);
+                              }),
+                    )
+                  ]),
+            ),
           ),
         ));
   }

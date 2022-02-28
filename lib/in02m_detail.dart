@@ -119,31 +119,33 @@ class IN02D0List extends StatelessWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Expanded(
-                  child: Text('Serial Number: ${in02D0s[index].serialNumber}',
+                  child: Text('Số seri: ${in02D0s[index].serialNumber}',
                       style: const TextStyle(color: Colors.white)),
                 ),
-                Text('LotNumber: ${in02D0s[index].lotNumber!}',
+                Text('Mã lô: ${in02D0s[index].lotNumber!}',
                     style: const TextStyle(color: Colors.white)),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Length: ${in02D0s[index].length}',
+                  Text('Dài: ${in02D0s[index].length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      )),
+                  Text('Rộng: ${in02D0s[index].width}',
                       style: const TextStyle(color: Colors.white)),
-                  Text('Width: ${in02D0s[index].width}',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('Height: ${in02D0s[index].height}',
+                  Text('Dày: ${in02D0s[index].height}',
                       style: const TextStyle(color: Colors.white)),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Crack Size: ${in02D0s[index].crackSize}',
+                  Text('Quy cách nứt: ${in02D0s[index].crackSize}',
                       style: const TextStyle(color: Colors.white)),
-                  Text('Crack Acreage: ${in02D0s[index].crackAcreage}',
+                  Text('Trừ nứt: ${in02D0s[index].crackAcreage}',
                       style: const TextStyle(color: Colors.white)),
-                  Text('Actual Qty: ${in02D0s[index].actualQty}',
+                  Text('SL QĐ: ${in02D0s[index].actualQty}',
                       style: const TextStyle(color: Colors.white)),
                 ],
               )
