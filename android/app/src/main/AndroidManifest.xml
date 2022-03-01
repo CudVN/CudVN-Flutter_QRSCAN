@@ -2,7 +2,7 @@
     package="com.example.qr_code">
     <uses-permission android:name="android.permission.INTERNET" />
    <application
-        android:label="qr_code"
+        android:label="Oryza"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
