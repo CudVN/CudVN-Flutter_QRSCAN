@@ -5,7 +5,7 @@ class AddQRCode extends ChangeNotifier {
   final List<QR> _qr = [];
   List<QR> get qrs => _qr.toList();
   void addQrCode(QR qr) {
-    _qr.add(qr);
+    _qr.insert(0, qr);
     notifyListeners();
   }
 
@@ -16,6 +16,11 @@ class AddQRCode extends ChangeNotifier {
 
   void removeQrCodes() {
     _qr.removeWhere((qr) => qr.isDel == true);
+    notifyListeners();
+  }
+
+  void removeAllQrCodes() {
+    _qr.removeWhere((qr) => qr.qrCode != null);
     notifyListeners();
   }
 }

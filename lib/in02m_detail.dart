@@ -31,7 +31,9 @@ class PageDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: const Text('Chi Tiết'),
+          backgroundColor: cPrimaryColor,
 /*         actions: [
           IconButton(
               icon: const Icon(
@@ -113,46 +115,52 @@ class IN02D0List extends StatelessWidget {
         itemCount: in02D0s.length,
         itemBuilder: (context, index) {
           return Container(
-            margin: const EdgeInsets.symmetric(vertical: 2),
+            decoration: BoxDecoration(
+                color: cPrimaryLightColor,
+                borderRadius: BorderRadius.circular(defaultBorderRadius)),
+            margin: const EdgeInsets.symmetric(vertical: 3),
             padding: const EdgeInsets.all(4),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Expanded(
-                  child: Text('Số seri: ${in02D0s[index].serialNumber}',
-                      style: const TextStyle(color: Colors.white)),
+                  child: Text(
+                    'Số seri: ${in02D0s[index].serialNumber}',
+                  ),
                 ),
-                Text('Mã lô: ${in02D0s[index].lotNumber!}',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Mã lô: ${in02D0s[index].lotNumber!}',
+                ),
               ]),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Dài: ${in02D0s[index].length}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                      )),
-                  Text('Rộng: ${in02D0s[index].width}',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('Dày: ${in02D0s[index].height}',
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    'Dài: ${in02D0s[index].length}',
+                  ),
+                  Text(
+                    'Rộng: ${in02D0s[index].width}',
+                  ),
+                  Text(
+                    'Dày: ${in02D0s[index].height}',
+                  ),
                 ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Quy cách nứt: ${in02D0s[index].crackSize}',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('Trừ nứt: ${in02D0s[index].crackAcreage}',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('SL QĐ: ${in02D0s[index].actualQty}',
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    'Q.cách nứt: ${in02D0s[index].crackSize}',
+                  ),
+                  Text(
+                    'Trừ nứt: ${in02D0s[index].crackAcreage}',
+                  ),
+                  Text(
+                    'SL QĐ: ${in02D0s[index].actualQty}',
+                  ),
                 ],
               )
             ]),
-            color: index % 2 == 0
-                ? const Color.fromARGB(255, 71, 117, 160)
-                : const Color.fromARGB(255, 104, 123, 185),
           );
         });
   }
@@ -170,12 +178,12 @@ class ItemRichText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RichText(
-        text: TextSpan(style: const TextStyle(fontSize: 20), children: [
+        text: TextSpan(style: const TextStyle(fontSize: 15), children: [
       TextSpan(
           text: '$title: ',
           style: const TextStyle(
               fontWeight: FontWeight.bold, color: Colors.black)),
-      TextSpan(text: content, style: const TextStyle(color: Colors.green))
+      TextSpan(text: content, style: const TextStyle(color: cPrimaryColor))
     ]));
   }
 }

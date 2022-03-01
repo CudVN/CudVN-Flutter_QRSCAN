@@ -29,6 +29,7 @@ class _AddIN02MState extends State<AddIN02M> {
   List<Employee> employees = [];
   List<Customer> customers = [];
   List<SerialView> serials = [];
+  bool checkSaved = false;
 
   DateTime? selectedDate = DateTime.now();
   String time = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -156,7 +157,7 @@ class _AddIN02MState extends State<AddIN02M> {
               .first
               .employeeName,
           createDate: DateTime.now().toString(),
-          createBy: 'ADMIN',
+          createBy: userName,
           remark2: 'remark2',
           customerID: _mySelectionCustomer,
           customerName: customers
@@ -165,6 +166,7 @@ class _AddIN02MState extends State<AddIN02M> {
               .shortName,
           seris: _lstSerial);
       createIN02M(http.Client(), _in02);
+      checkSaved = true;
     } else {
       NotiBar.showSnackBar(context, 'Kiểm tra lại QR Code');
     }
@@ -176,24 +178,39 @@ class _AddIN02MState extends State<AddIN02M> {
     final qrs = provider.qrs;
     return Scaffold(
         key: _formKey2,
-        appBar: AppBar(title: const Text('Thêm mới'), actions: [
-          IconButton(
-              icon: const Icon(
-                Icons.save,
-                color: Colors.white,
-                size: 30,
-              ),
-              onPressed: () {
-                setState(() {
-                  phieuXuat.text.isEmpty
-                      ? _validatePhieuXuat = true
-                      : _validatePhieuXuat = false;
-                });
-                if (_formKey.currentState!.validate()) {
-                  saveIN02M(qrs);
-                }
-              })
-        ]),
+        appBar: AppBar(
+            backgroundColor: cPrimaryColor,
+            centerTitle: true,
+            title: const Text('Thêm mới'),
+            actions: [
+              IconButton(
+                  icon: const Icon(
+                    Icons.save,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  onPressed: () async {
+                    checkSaved = false;
+                    setState(() {
+                      phieuXuat.text.isEmpty
+                          ? _validatePhieuXuat = true
+                          : _validatePhieuXuat = false;
+                    });
+                    if (_formKey.currentState!.validate()) {
+                      await saveIN02M(qrs);
+                      setState(() {
+                        if (checkSaved) {
+                          phieuXuat.clear();
+                          ghiChu.clear();
+                          _mySelectionCustomer = null;
+                          _mySelectionUser = null;
+                          deleteAllQrCodes(context);
+                          NotiBar.showSnackBar(context, 'Lưu thành công!');
+                        }
+                      });
+                    }
+                  })
+            ]),
         body: Form(
           key: _formKey,
           child: Center(
@@ -204,9 +221,17 @@ class _AddIN02MState extends State<AddIN02M> {
                   children: [
                     Row(
                       children: [
-                        SizedBox(
+                        Container(
                           width: MediaQuery.of(context).size.width / 1.6,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                              color: cPrimaryLightColor,
+                              borderRadius: BorderRadius.circular(12)),
                           child: DropdownButtonFormField(
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
                             validator: (value) =>
                                 value == null ? 'Bắt buộc' : null,
                             isExpanded: true,
@@ -229,25 +254,39 @@ class _AddIN02MState extends State<AddIN02M> {
                           width: 10,
                         ),
                         Expanded(
-                          child: TextFormField(
-                            controller: phieuXuat,
-                            maxLines: 1,
-                            decoration: InputDecoration(
-                                errorText: _validatePhieuXuat
-                                    ? 'Không bỏ trống'
-                                    : null,
-                                hintText: 'Phiếu xuất số',
-                                border: InputBorder.none),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                                color: cPrimaryLightColor,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: TextFormField(
+                              controller: phieuXuat,
+                              maxLines: 1,
+                              decoration: InputDecoration(
+                                  errorText: _validatePhieuXuat
+                                      ? 'Không bỏ trống'
+                                      : null,
+                                  hintText: 'Phiếu xuất số',
+                                  border: InputBorder.none),
+                            ),
                           ),
                         )
                       ],
                     ),
                     Row(
                       children: [
-                        SizedBox(
+                        Container(
                           width: MediaQuery.of(context).size.width / 2,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          decoration: BoxDecoration(
+                              color: cPrimaryLightColor,
+                              borderRadius: BorderRadius.circular(12)),
                           child: DropdownButtonFormField(
-                            elevation: 5,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
                             validator: (value) =>
                                 value == null ? 'Bắt buộc' : null,
                             isExpanded: true,
@@ -266,67 +305,80 @@ class _AddIN02MState extends State<AddIN02M> {
                             value: _mySelectionUser,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () async {
-                            selectedDate = (await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2020),
-                                lastDate: DateTime(2025)));
-                            setState(() {
-                              if (selectedDate != null) {
-                                time = DateFormat('dd/MM/yyyy')
-                                    .format(selectedDate!);
-                              }
-                            });
-                          },
-                          child: const Icon(Icons.calendar_month_rounded),
+                        const SizedBox(
+                          width: 10,
                         ),
-                        Expanded(child: Text(time)),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                                color: cPrimaryLightColor,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: TextButton.icon(
+                              icon: const Icon(Icons.calendar_month_rounded),
+                              onPressed: () async {
+                                selectedDate = (await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2025)));
+                                setState(() {
+                                  if (selectedDate != null) {
+                                    time = DateFormat('dd/MM/yyyy')
+                                        .format(selectedDate!);
+                                  }
+                                });
+                              },
+                              label: Text(time),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     Row(
                       children: [
                         Expanded(
-                          child: TextFormField(
-                              controller: ghiChu,
-                              maxLines: 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                                color: cPrimaryLightColor,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: TextFormField(
+                                controller: ghiChu,
+                                maxLines: 2,
+                                decoration: const InputDecoration(
+                                  hintText: 'Ghi Chú',
+                                  border: InputBorder.none,
+                                )),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                                color: cPrimaryLightColor,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: TextFormField(
+                              controller: qrTextController,
+                              maxLines: 1,
                               decoration: const InputDecoration(
-                                hintText: 'Ghi Chú',
-                              )),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: qrTextController,
-                            maxLines: 1,
-                            decoration: const InputDecoration(
-                                hintText: 'Nhập mã hoặc thêm bằng QR code'),
+                                  border: InputBorder.none,
+                                  hintText: 'Nhập mã hoặc thêm bằng QR code'),
+                            ),
                           ),
                         ),
                         SizedBox(
                             width: 40,
                             child: TextButton(
                               onPressed: () {
-                                final provider = Provider.of<AddQRCode>(context,
-                                    listen: false);
-                                final foundQR = provider.qrs.where((element) =>
-                                    element.qrCode == qrTextController.text);
-                                if (foundQR.isEmpty &&
-                                    qrTextController.text.isNotEmpty) {
-                                  final qr = QR(
-                                      qrCode: qrTextController.text,
-                                      isDone: false,
-                                      isDel: false);
-                                  provider.addQrCode(qr);
-                                  qrTextController.clear();
-                                } else {
-                                  NotiBar.showSnackBar(
-                                      context, 'Mã này đã được thêm');
-                                }
+                                insertQrCode(context, qrTextController);
                               },
                               child: const Icon(Icons.add_box),
                             )),
@@ -378,5 +430,25 @@ class _AddIN02MState extends State<AddIN02M> {
 void deleteQrCodes(BuildContext context) {
   final provider = Provider.of<AddQRCode>(context, listen: false);
   provider.removeQrCodes();
-  NotiBar.showSnackBar(context, 'Đã danh sách mã QR');
+  NotiBar.showSnackBar(context, 'Đã xoá danh sách mã QR');
+}
+
+void deleteAllQrCodes(BuildContext context) {
+  final provider = Provider.of<AddQRCode>(context, listen: false);
+  provider.removeAllQrCodes();
+  NotiBar.showSnackBar(context, 'Đã xoá danh sách mã QR');
+}
+
+void insertQrCode(
+    BuildContext context, TextEditingController qrTextController) {
+  final provider = Provider.of<AddQRCode>(context, listen: false);
+  final foundQR =
+      provider.qrs.where((element) => element.qrCode == qrTextController.text);
+  if (foundQR.isEmpty && qrTextController.text.isNotEmpty) {
+    final qr = QR(qrCode: qrTextController.text, isDone: false, isDel: false);
+    provider.addQrCode(qr);
+    qrTextController.clear();
+  } else {
+    NotiBar.showSnackBar(context, 'Mã này đã được thêm');
+  }
 }

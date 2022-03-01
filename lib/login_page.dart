@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final pwController = TextEditingController();
   final apiController = TextEditingController();
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  // ignore: unused_field
   late Future<String> _base;
 
   bool _validateUser = false;
@@ -79,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: Center(
           child: Padding(
@@ -86,45 +88,95 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextFormField(
-              controller: userController,
-              decoration: InputDecoration(
-                errorText: _validateUser ? 'Không bỏ trống' : null,
-                hintText: 'Tài khoản',
+            Image.asset(
+              'assets/images/oryza.png',
+              width: size.width * 0.7,
+            ),
+            SizedBox(
+              height: size.height * 0.05,
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              width: size.width * 0.8,
+              decoration: BoxDecoration(
+                color: cPrimaryLightColor,
+                borderRadius: BorderRadius.circular(29),
+              ),
+              child: TextFormField(
+                controller: userController,
+                decoration: InputDecoration(
+                  icon: const Icon(
+                    Icons.person,
+                    color: cPrimaryColor,
+                  ),
+                  errorText: _validateUser ? 'Không bỏ trống' : null,
+                  hintText: 'Tài khoản',
+                  border: InputBorder.none,
+                ),
               ),
             ),
-            TextFormField(
-              controller: pwController,
-              validator: (value) => value == null ? 'Vui lòng nhập' : null,
-              obscureText: true,
-              decoration: InputDecoration(
-                errorText: _validatePw ? 'Không bỏ trống' : null,
-                hintText: 'Mật khẩu',
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              width: size.width * 0.8,
+              decoration: BoxDecoration(
+                color: cPrimaryLightColor,
+                borderRadius: BorderRadius.circular(29),
+              ),
+              child: TextFormField(
+                controller: pwController,
+                validator: (value) => value == null ? 'Vui lòng nhập' : null,
+                obscureText: true,
+                decoration: InputDecoration(
+                  icon: const Icon(
+                    Icons.lock,
+                    color: cPrimaryColor,
+                  ),
+                  errorText: _validatePw ? 'Không bỏ trống' : null,
+                  hintText: 'Mật khẩu',
+                  border: InputBorder.none,
+                ),
               ),
             ),
-            TextButton(
-                onLongPress: () {
-                  setting = true;
-                  setState(() {});
-                },
-                onPressed: () {
-                  setState(() {
-                    userController.text.isEmpty
-                        ? _validateUser = true
-                        : _validateUser = false;
-                    pwController.text.isEmpty
-                        ? _validatePw = true
-                        : _validatePw = false;
-                  });
-                  if (_validatePw == false && _validateUser == false) {
-                    setState(() {
-                      isLoading = true;
-                    });
-                    fetchUser(
-                        http.Client(), userController.text, pwController.text);
-                  }
-                },
-                child: const Text('LOGIN')),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              width: size.width * 0.8,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(29),
+                child: TextButton(
+                    style: TextButton.styleFrom(
+                        backgroundColor: cPrimaryColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20)),
+                    onLongPress: () {
+                      setting = true;
+                      setState(() {});
+                    },
+                    onPressed: () {
+                      setState(() {
+                        userController.text.isEmpty
+                            ? _validateUser = true
+                            : _validateUser = false;
+                        pwController.text.isEmpty
+                            ? _validatePw = true
+                            : _validatePw = false;
+                      });
+                      if (_validatePw == false && _validateUser == false) {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        fetchUser(http.Client(), userController.text,
+                            pwController.text);
+                        userName = userController.text;
+                      }
+                    },
+                    child: const Text(
+                      'ĐĂNG NHẬP',
+                      style: TextStyle(color: Colors.white),
+                    )),
+              ),
+            ),
             setting
                 ? TextButton(
                     onPressed: () async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_code/constance.dart';
 import 'package:qr_code/object/qr.dart';
 import 'package:qr_code/provider/add_qr.dart';
 import 'package:qr_code/widget/noti_bar.dart';
@@ -22,8 +23,8 @@ class _QrItemState extends State<QrItem> {
               SlidableAction(
                 flex: 1,
                 onPressed: (_) => deleteQrCode(context, widget.qr),
-                backgroundColor: const Color(0xFFFE4A49),
-                foregroundColor: Colors.white,
+                backgroundColor: cErrorColor,
+                foregroundColor: bgColor,
                 icon: Icons.delete,
                 label: 'Delete',
               ),
@@ -34,7 +35,7 @@ class _QrItemState extends State<QrItem> {
 
   Widget buildQrItem(BuildContext context) {
     return Container(
-      color: widget.qr.isDone == true ? Colors.green : Colors.blueAccent,
+      color: widget.qr.isDone == true ? Colors.green : cPrimaryColor,
       margin: const EdgeInsets.symmetric(vertical: 1),
       padding: const EdgeInsets.all(2),
       child: Padding(
@@ -46,7 +47,7 @@ class _QrItemState extends State<QrItem> {
                 widget.qr.qrCode!,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: bgColor,
                   fontSize: 20,
                 ),
               ),
@@ -54,14 +55,18 @@ class _QrItemState extends State<QrItem> {
             const SizedBox(
               width: 20,
             ),
-            Checkbox(
-                activeColor: Colors.lightGreen,
-                checkColor: Colors.white,
-                value: widget.qr.isDel,
-                onChanged: (value) {
-                  widget.qr.isDel = value;
-                  setState(() {});
-                })
+            SizedBox(
+              width: 30,
+              height: 30,
+              child: Checkbox(
+                  activeColor: cDoneColor,
+                  checkColor: bgColor,
+                  value: widget.qr.isDel,
+                  onChanged: (value) {
+                    widget.qr.isDel = value;
+                    setState(() {});
+                  }),
+            )
           ],
         ),
       ),

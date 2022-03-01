@@ -48,9 +48,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 219, 228, 219),
       appBar: AppBar(
-        title: Text(widget.title),
+        centerTitle: true,
+        title: Text(
+          widget.title,
+        ),
+        backgroundColor: cPrimaryColor,
         actions: [
           IconButton(
               icon: const Icon(
@@ -58,73 +61,92 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.white,
                 size: 30,
               ),
-              onPressed: () {
-                Navigator.push(context,
+              onPressed: () async {
+                await Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const AddIN02M()));
+                setState(() {
+                  isLoad = true;
+                });
               })
         ],
       ),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 40,
-                child: TextButton(
-                  onPressed: () async {
-                    isLoad = false;
-                    selectedFDate = (await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2025)));
-                    setState(() {
-                      if (selectedFDate != null) {
-                        fDate = selectedFDate!;
-                      }
-                    });
-                  },
-                  child: const Icon(Icons.calendar_month_rounded),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  decoration: BoxDecoration(
+                      color: cPrimaryLightColor,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.calendar_month_rounded),
+                    label: Text(DateFormat('dd-MM-yyyy').format(fDate)),
+                    onPressed: () async {
+                      isLoad = false;
+                      selectedFDate = (await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2025)));
+                      setState(() {
+                        if (selectedFDate != null) {
+                          fDate = selectedFDate!;
+                        }
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Text(DateFormat('dd-MM-yyyy').format(fDate)),
-              const SizedBox(
-                  width: 30,
-                  child: Text(
-                    '-',
-                    textAlign: TextAlign.center,
-                  )),
-              SizedBox(
-                width: 40,
-                child: TextButton(
-                  onPressed: () async {
-                    isLoad = false;
-                    selectedTDate = (await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2025)));
-                    setState(() {
-                      if (selectedTDate != null) {
-                        tDate = selectedTDate!;
-                      }
-                    });
-                  },
-                  child: const Icon(Icons.calendar_month_rounded),
+                const SizedBox(
+                    width: 30,
+                    child: Text(
+                      '-',
+                      textAlign: TextAlign.center,
+                    )),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 5),
+                  decoration: BoxDecoration(
+                      color: cPrimaryLightColor,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: TextButton.icon(
+                    icon: const Icon(Icons.calendar_month_rounded),
+                    label: Text(DateFormat('dd-MM-yyyy').format(tDate)),
+                    onPressed: () async {
+                      isLoad = false;
+                      selectedTDate = (await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2025)));
+                      setState(() {
+                        if (selectedTDate != null) {
+                          tDate = selectedTDate!;
+                        }
+                      });
+                    },
+                  ),
                 ),
-              ),
-              Text(DateFormat('dd-MM-yyyy').format(tDate)),
-              TextButton(
-                  onPressed: () {
-                    setState(() {
-                      isLoad = true;
-                    });
-                  },
-                  child: const Icon(
-                    Icons.search,
-                  )),
-            ],
+                Container(
+                  decoration: BoxDecoration(
+                      color: cPrimaryLightColor,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          isLoad = true;
+                        });
+                      },
+                      child: const Icon(
+                        Icons.search,
+                      )),
+                ),
+              ],
+            ),
           ),
           Expanded(
               child: Center(

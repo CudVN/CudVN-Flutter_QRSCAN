@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_code/constance.dart';
 import 'package:qr_code/object/qr.dart';
 import 'package:qr_code/provider/add_qr.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -17,7 +18,6 @@ class QRScan extends StatefulWidget {
 class _QRScanState extends State<QRScan> {
   final qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? barcode;
-  String? scaned;
   QRViewController? controller;
 
   @override
@@ -37,6 +37,8 @@ class _QRScanState extends State<QRScan> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<AddQRCode>(context);
+    final qrs = provider.qrs;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanner'),
@@ -45,7 +47,7 @@ class _QRScanState extends State<QRScan> {
         alignment: Alignment.center,
         children: [
           buildQrView(context),
-          Positioned(child: buildResult(), bottom: 50),
+          Positioned(child: buildResult(qrs), bottom: 10),
           Positioned(child: buildControlButtons(), top: 10)
         ],
       ),
@@ -100,32 +102,54 @@ class _QRScanState extends State<QRScan> {
     );
   }
 
-  buildResult() {
+  buildResult(List<QR> qrs) {
     return Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: scaned == null ? Colors.white24 : Colors.green,
-        ),
-        child: Text(
+      padding: const EdgeInsets.all(12),
+      height: 100,
+      width: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white24,
+      ),
+      child: ListView.separated(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(2),
+          separatorBuilder: (context, index) => Container(
+                height: 2,
+              ),
+          itemCount: qrs.length,
+          itemBuilder: (context, index) {
+            final qr = qrs[index];
+            return Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Text(
+                '${qr.qrCode}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: cDoneColor),
+              ),
+            );
+          }), /* Text(
           scaned == null
               ? (barcode != null ? 'Code: ${barcode!.code}' : 'Scan a code!')
               : 'Đã quét',
           maxLines: 3,
           style:
               const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ));
+        ) */
+    );
   }
 
   Widget buildQrView(BuildContext context) => QRView(
         key: qrKey,
         onQRViewCreated: onQRViewCreated,
         overlay: QrScannerOverlayShape(
-          borderColor: const Color.fromRGBO(255, 0, 0, 1),
+          borderColor: cErrorColor,
           borderRadius: 10,
           borderLength: 20,
           borderWidth: 10,
           cutOutSize: MediaQuery.of(context).size.width * 0.8,
+          //cutOutBottomOffset: 50,
         ),
       );
 
@@ -146,9 +170,9 @@ class _QRScanState extends State<QRScan> {
                 QR(qrCode: this.barcode!.code, isDone: false, isDel: false);
             provider.addQrCode(qr);
             FlutterRingtonePlayer.playNotification();
-          } else if (foundQR.isNotEmpty) {
+          } /* else if (foundQR.isNotEmpty) {
             scaned = 'Đã quét';
-          }
+          } */
 
           /* showDialog(
               context: context,
