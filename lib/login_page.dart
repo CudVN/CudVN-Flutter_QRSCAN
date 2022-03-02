@@ -57,8 +57,8 @@ class _LoginPageState extends State<LoginPage> {
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
-      body: jsonEncode(
-          data), // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
+      body: jsonEncode(data),
+      // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
     );
     if (response.statusCode < 200 || response.statusCode >= 400) {
       setState(() {

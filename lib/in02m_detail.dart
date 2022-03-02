@@ -116,7 +116,8 @@ class IN02D0List extends StatelessWidget {
         itemBuilder: (context, index) {
           return Container(
             decoration: BoxDecoration(
-                color: cPrimaryLightColor,
+                color:
+                    index % 2 == 0 ? cPrimaryLightColor2 : cPrimaryLightColor,
                 borderRadius: BorderRadius.circular(defaultBorderRadius)),
             margin: const EdgeInsets.symmetric(vertical: 3),
             padding: const EdgeInsets.all(4),
@@ -150,16 +151,16 @@ class IN02D0List extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Q.cách nứt: ${in02D0s[index].crackSize}',
-                  ),
-                  Text(
                     'Trừ nứt: ${in02D0s[index].crackAcreage}',
                   ),
                   Text(
                     'SL QĐ: ${in02D0s[index].actualQty}',
                   ),
                 ],
-              )
+              ),
+              Text(
+                'Quy cách nứt: ${in02D0s[index].crackSize}',
+              ),
             ]),
           );
         });

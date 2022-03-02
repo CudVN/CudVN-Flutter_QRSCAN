@@ -148,7 +148,7 @@ class _AddIN02MState extends State<AddIN02M> {
       }
       var _in02 = IN02M(
           oid: const Uuid().v4(),
-          voucherNo: phieuXuat.text,
+          voucherNo: phieuXuat.text.toUpperCase(),
           voucherDate: selectedDate.toString(),
           remark: '',
           employeeID: _mySelectionUser,

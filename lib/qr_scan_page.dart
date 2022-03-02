@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:provider/provider.dart';
@@ -40,15 +39,33 @@ class _QRScanState extends State<QRScan> {
     final provider = Provider.of<AddQRCode>(context);
     final qrs = provider.qrs;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Scanner'),
+        backgroundColor: cPrimaryColor,
       ),
-      body: Stack(
-        alignment: Alignment.center,
+      body: Column(
         children: [
-          buildQrView(context),
-          Positioned(child: buildResult(qrs), bottom: 10),
-          Positioned(child: buildControlButtons(), top: 10)
+          Expanded(
+            flex: 5,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                    // margin: const EdgeInsets.only(top: 20),
+                    child: buildQrView(context)),
+                Positioned(child: buildControlButtons(), top: 10),
+                Positioned(bottom: 10, child: _buttonDone(context)),
+              ],
+            ),
+          ),
+          Expanded(
+              flex: 1,
+              child: Container(
+                width: double.infinity,
+                color: Colors.white24,
+                child: buildResult(qrs),
+              )),
         ],
       ),
     );
@@ -105,12 +122,7 @@ class _QRScanState extends State<QRScan> {
   buildResult(List<QR> qrs) {
     return Container(
       padding: const EdgeInsets.all(12),
-      height: 100,
-      width: 200,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: Colors.white24,
-      ),
+      color: Colors.white24,
       child: ListView.separated(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(2),
@@ -148,8 +160,7 @@ class _QRScanState extends State<QRScan> {
           borderRadius: 10,
           borderLength: 20,
           borderWidth: 10,
-          cutOutSize: MediaQuery.of(context).size.width * 0.8,
-          //cutOutBottomOffset: 50,
+          cutOutSize: MediaQuery.of(context).size.height * 0.4,
         ),
       );
 
@@ -170,40 +181,32 @@ class _QRScanState extends State<QRScan> {
                 QR(qrCode: this.barcode!.code, isDone: false, isDel: false);
             provider.addQrCode(qr);
             FlutterRingtonePlayer.playNotification();
-          } /* else if (foundQR.isNotEmpty) {
-            scaned = 'Đã quét';
-          } */
-
-          /* showDialog(
-              context: context,
-              builder: (context) =>  AlertDialog(                    
-                    title: const Text(
-                      'Quét mã thành công',
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                    content: Text(
-                      '${barcode.code}',
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                    actions: [
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          primary: Colors.white,
-                          backgroundColor: Colors.teal,
-                          onSurface: Colors.grey,                          
-                        ),
-                        child: const Text('Xác nhận'),
-                        onPressed: () {
-                          this.barcode = null;
-                          Navigator.of(context).pop();
-                          Future.delayed(const Duration(seconds: 10));
-                          controller.resumeCamera();
-                        },
-                      )
-                    ],
-                  ));  */
+          }
         }
       });
     });
+  }
+
+  _buttonDone(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: cDoneColor,
+      ),
+      child: TextButton.icon(
+        icon: const Icon(
+          Icons.done,
+          color: bgColor,
+        ),
+        label: const Text(
+          'Hoàn Thành',
+          style: TextStyle(color: bgColor),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 }
