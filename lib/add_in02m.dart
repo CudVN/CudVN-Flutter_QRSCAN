@@ -17,7 +17,8 @@ import 'package:qr_code/widget/qr_item.dart';
 import 'package:uuid/uuid.dart';
 
 class AddIN02M extends StatefulWidget {
-  const AddIN02M({Key? key}) : super(key: key);
+  final String vID;
+  const AddIN02M({Key? key, required this.vID}) : super(key: key);
 
   @override
   _AddIN02MState createState() => _AddIN02MState();
@@ -38,6 +39,7 @@ class _AddIN02MState extends State<AddIN02M> {
   final ghiChu = TextEditingController();
   bool? added;
   bool _validatePhieuXuat = false;
+  bool _xuatTam = false;
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
 
@@ -147,24 +149,29 @@ class _AddIN02MState extends State<AddIN02M> {
         );
       }
       var _in02 = IN02M(
-          oid: const Uuid().v4(),
-          voucherNo: phieuXuat.text.toUpperCase(),
-          voucherDate: selectedDate.toString(),
-          remark: '',
-          employeeID: _mySelectionUser,
-          employeeName: employees
-              .where((e) => e.oid == _mySelectionUser)
-              .first
-              .employeeName,
-          createDate: DateTime.now().toString(),
-          createBy: userName,
-          remark2: 'remark2',
-          customerID: _mySelectionCustomer,
-          customerName: customers
-              .where((e) => e.oid == _mySelectionCustomer)
-              .first
-              .shortName,
-          seris: _lstSerial);
+        oid: const Uuid().v4(),
+        codeName: widget.vID,
+        voucherNo: phieuXuat.text.toUpperCase(),
+        voucherDate: selectedDate.toString(),
+        remark: '',
+        employeeID: _mySelectionUser,
+        employeeName: employees
+            .where((e) => e.oid == _mySelectionUser)
+            .first
+            .employeeName,
+        createDate: DateTime.now().toString(),
+        createBy: userName,
+        remark2: 'remark2',
+        customerID: widget.vID == vIDXuatBan ? _mySelectionCustomer : null,
+        customerName: widget.vID == vIDXuatBan
+            ? customers
+                .where((e) => e.oid == _mySelectionCustomer)
+                .first
+                .shortName
+            : null,
+        tempIssue: widget.vID == vIDXuatBan ? null : _xuatTam,
+        seris: _lstSerial,
+      );
       createIN02M(http.Client(), _in02);
       checkSaved = true;
     } else {
@@ -221,34 +228,51 @@ class _AddIN02MState extends State<AddIN02M> {
                   children: [
                     Row(
                       children: [
+                        //Combobox khách hàng
                         Container(
-                          width: MediaQuery.of(context).size.width / 1.6,
+                          width: MediaQuery.of(context).size.width /
+                              (widget.vID == vIDXuatBan ? 1.6 : 2),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          margin: const EdgeInsets.symmetric(vertical: 1),
                           decoration: BoxDecoration(
                               color: cPrimaryLightColor,
                               borderRadius: BorderRadius.circular(12)),
-                          child: DropdownButtonFormField(
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                            validator: (value) =>
-                                value == null ? 'Bắt buộc' : null,
-                            isExpanded: true,
-                            hint: const Text('Chọn khách hàng'),
-                            items: customers.map((item) {
-                              return DropdownMenuItem(
-                                child: Text(item.shortName!),
-                                value: item.oid,
-                              );
-                            }).toList(),
-                            onChanged: (newVal) {
-                              setState(() {
-                                _mySelectionCustomer = newVal.toString();
-                              });
-                            },
-                            value: _mySelectionCustomer,
-                          ),
+                          child: widget.vID == vIDXuatBan
+                              ? DropdownButtonFormField(
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  validator: (value) =>
+                                      value == null ? 'Bắt buộc' : null,
+                                  isExpanded: true,
+                                  hint: const Text('Chọn khách hàng'),
+                                  items: customers.map((item) {
+                                    return DropdownMenuItem(
+                                      child: Text(item.shortName!),
+                                      value: item.oid,
+                                    );
+                                  }).toList(),
+                                  onChanged: (newVal) {
+                                    setState(() {
+                                      _mySelectionCustomer = newVal.toString();
+                                    });
+                                  },
+                                  value: _mySelectionCustomer,
+                                )
+                              : Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Text('Xuất tạm'),
+                                    ),
+                                    Checkbox(
+                                        value: _xuatTam,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _xuatTam = value!;
+                                          });
+                                        })
+                                  ],
+                                ),
                         ),
                         const SizedBox(
                           width: 10,

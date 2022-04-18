@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:qr_code/constance.dart';
-import 'package:qr_code/home_page.dart';
+import 'package:qr_code/main_page.dart';
 import 'package:qr_code/object/nhanvien.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,9 +70,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-                builder: (BuildContext context) => const MyHomePage(
-                      title: 'Xuất kho',
-                    )),
+                builder: (BuildContext context) => const MainPage()),
             (Route<dynamic> route) => false);
       });
     }

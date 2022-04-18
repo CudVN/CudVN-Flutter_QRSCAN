@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,9 +11,9 @@ import 'in02m_item.dart';
 import 'object/xuatkho.dart';
 
 Future<List<IN02M>> fetchIN02M(
-    http.Client client, String fDate, String tDate) async {
+    http.Client client, String fDate, String tDate, String vID) async {
   final uri = Uri.parse(base + 'IN02M/GetByDate/')
-      .replace(queryParameters: {'fDate': fDate, 'tDate': tDate});
+      .replace(queryParameters: {'fDate': fDate, 'tDate': tDate, 'VID' : vID});
   final response = await client.get(uri);
   return compute(parseIN02Ms, response.body);
 }
@@ -25,9 +24,11 @@ List<IN02M> parseIN02Ms(String responseBody) {
 }
 
 class MyHomePage extends StatefulWidget {
+  final String vID;
   const MyHomePage({
     Key? key,
     required this.title,
+    required this.vID,
   }) : super(key: key);
   final String title;
   @override
@@ -63,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               onPressed: () async {
                 await Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AddIN02M()));
+                    MaterialPageRoute(builder: (context) => AddIN02M(vID: widget.vID,)));
                 setState(() {
                   isLoad = true;
                 });
@@ -155,7 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     future: fetchIN02M(
                         http.Client(),
                         DateFormat('MM-dd-yyyy').format(fDate),
-                        DateFormat('MM-dd-yyyy').format(tDate)),
+                        DateFormat('MM-dd-yyyy').format(tDate),
+                        widget.vID),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return const Text('Không có dữ liệu');

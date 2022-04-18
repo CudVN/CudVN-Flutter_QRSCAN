@@ -11,4 +11,6 @@ const cDoneColor = Color(0xFF00AE72);
 const bgColor = Color(0XFFFBFBFD);
 const defaultPadding = 16.0;
 const defaultBorderRadius = 12.0;
+const vIDXuatBan = 'B01';
+const vIDXuatSX = 'A03';
 //const cPrimaryLightColor = Color(0xFFF1E6FF);
