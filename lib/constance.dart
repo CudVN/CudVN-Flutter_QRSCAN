@@ -13,4 +13,5 @@ const defaultPadding = 16.0;
 const defaultBorderRadius = 12.0;
 const vIDXuatBan = 'B01';
 const vIDXuatSX = 'A03';
+const vIDChuyenKho = 'A05';
 //const cPrimaryLightColor = Color(0xFFF1E6FF);

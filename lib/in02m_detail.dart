@@ -23,8 +23,10 @@ List<SerialView> parseIN02Ms(String responseBody) {
 class PageDetail extends StatelessWidget {
   const PageDetail({
     Key? key,
+    required this.vID,
     required this.in02m,
   }) : super(key: key);
+  final String vID;
   final IN02M in02m;
 
   @override
@@ -54,10 +56,15 @@ class PageDetail extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ItemRichText(
+                    child: vID==vIDXuatBan ? ItemRichText(
                       title: 'Khách hàng',
                       content: in02m.customerName ?? 'NULL',
-                    ),
+                    ) : ( vID==vIDXuatSX ? ItemRichText(
+                      title: 'Người tạo',
+                      content: in02m.createBy ?? 'NULL')
+                    : ItemRichText(
+                      title: 'Kho nhập',
+                      content: in02m.whID ?? 'NULL')) 
                   ),
                   ItemRichText(
                     title: 'Số phiếu',

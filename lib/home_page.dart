@@ -163,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         return const Text('Không có dữ liệu');
                       } else if (snapshot.hasData) {
                         return IN02MList(
+                          vID: widget.vID,
                           in02ms: snapshot.data!,
                         );
                       } else {

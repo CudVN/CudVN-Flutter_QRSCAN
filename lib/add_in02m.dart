@@ -7,6 +7,7 @@ import 'package:qr_code/object/employee.dart';
 import 'package:qr_code/object/khachhang.dart';
 import 'package:qr_code/object/qr.dart';
 import 'package:qr_code/object/serial.dart';
+import 'package:qr_code/object/warehouse.dart';
 import 'package:qr_code/object/xuatkho.dart';
 import 'package:qr_code/object/xuatkho_tojson.dart';
 import 'package:qr_code/provider/add_qr.dart';
@@ -27,8 +28,11 @@ class AddIN02M extends StatefulWidget {
 class _AddIN02MState extends State<AddIN02M> {
   String? _mySelectionUser;
   String? _mySelectionCustomer;
+  String? _mySelectionWHID;
   List<Employee> employees = [];
   List<Customer> customers = [];
+  List<WareHouse> wareHouses = [];
+  List<Customer> whid = [];
   List<SerialView> serials = [];
   bool checkSaved = false;
 
@@ -42,6 +46,7 @@ class _AddIN02MState extends State<AddIN02M> {
   bool _xuatTam = false;
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
+
 
   //Lấy danh sách khách hàng từ db
   Future<List<Customer>> fetchCustomer(http.Client client) async {
@@ -71,6 +76,19 @@ class _AddIN02MState extends State<AddIN02M> {
     return parsed.map<Employee>((json) => Employee.fromJson(json)).toList();
   }
 
+  //Lấy danh sách kho từ db
+  Future<List<WareHouse>> fetchWareHouses(http.Client client) async {
+    final response = await client.get(Uri.parse(base + 'Warehouse/'));
+    setState(() {
+      wareHouses = parseWareHouses(response.body);
+    });
+    return wareHouses;
+  }
+
+  List<WareHouse> parseWareHouses(String responseBody) {
+    final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+    return parsed.map<WareHouse>((json) => WareHouse.fromJson(json)).toList();
+  }
   //Lưu dữ liệu khi tạo phiếu xuất kho
   Future<int> createIN02M(http.Client client, IN02M in02m) async {
     final response = await client.post(
@@ -113,6 +131,7 @@ class _AddIN02MState extends State<AddIN02M> {
     super.initState();
     fetchUser(http.Client());
     fetchCustomer(http.Client());
+    fetchWareHouses(http.Client());
     phieuXuat.addListener(() {});
     ghiChu.addListener(() {});
   }
@@ -161,6 +180,7 @@ class _AddIN02MState extends State<AddIN02M> {
             .employeeName,
         createDate: DateTime.now().toString(),
         createBy: userName,
+        whID: widget.vID == vIDChuyenKho ? _mySelectionWHID : null,
         remark2: 'remark2',
         customerID: widget.vID == vIDXuatBan ? _mySelectionCustomer : null,
         customerName: widget.vID == vIDXuatBan
@@ -248,7 +268,7 @@ class _AddIN02MState extends State<AddIN02M> {
                                   hint: const Text('Chọn khách hàng'),
                                   items: customers.map((item) {
                                     return DropdownMenuItem(
-                                      child: Text(item.shortName!),
+                                      child: Text(item.customerName!),
                                       value: item.oid,
                                     );
                                   }).toList(),
@@ -259,7 +279,28 @@ class _AddIN02MState extends State<AddIN02M> {
                                   },
                                   value: _mySelectionCustomer,
                                 )
-                              : Row(
+                              : ( widget.vID == vIDChuyenKho ? DropdownButtonFormField(
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
+                                  validator: (value) =>
+                                      value == null ? 'Bắt buộc' : null,
+                                  isExpanded: true,
+                                  hint: const Text('Chọn kho'),
+                                  items: wareHouses.map((item) {
+                                    return DropdownMenuItem(
+                                      child: Text(item.wCode!),
+                                      value: item.oid,
+                                    );
+                                  }).toList(),
+                                  onChanged: (newVal) {
+                                    setState(() {
+                                      _mySelectionWHID = newVal.toString();
+                                    });
+                                  },
+                                  value: _mySelectionWHID,
+                                )
+                                : Row(
                                   children: [
                                     const Expanded(
                                       child: Text('Xuất tạm'),
@@ -272,7 +313,8 @@ class _AddIN02MState extends State<AddIN02M> {
                                           });
                                         })
                                   ],
-                                ),
+                                )
+                              ),
                         ),
                         const SizedBox(
                           width: 10,

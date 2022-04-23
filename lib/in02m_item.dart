@@ -7,9 +7,11 @@ import 'package:intl/intl.dart';
 class IN02MList extends StatelessWidget {
   const IN02MList({
     Key? key,
+    required this.vID,
     required this.in02ms,
   }) : super(key: key);
   final List<IN02M> in02ms;
+  final String vID;
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -37,16 +39,17 @@ class IN02MList extends StatelessWidget {
                           'Ngày xuất: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(in02ms[index].createDate!))}',
                         ),
                       ]),
-                      Text(
+                      vID == vIDXuatBan ? Text(
                         'Khách hàng: ${in02ms[index].customerName}',
-                      ),
+                      ) : Text(
+                        'Nhân viên: ${in02ms[index].employeeName}'),
                     ]),
               ),
               // ignore: avoid_print
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => PageDetail(in02m: in02ms[index]))));
+                      builder: (context) => PageDetail(vID: vID, in02m: in02ms[index]))));
         });
   }
 }

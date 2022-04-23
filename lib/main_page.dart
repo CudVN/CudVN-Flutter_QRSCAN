@@ -74,10 +74,10 @@ class MainPage extends StatelessWidget {
                        padding: const EdgeInsets.symmetric(
                            horizontal: 40, vertical: 20)),
                    onPressed: () {
-                      /* Navigator.of(context).pushAndRemoveUntil(
+                      Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
-                          builder: (BuildContext context) => const MyHomePage(title: 'CHUYỂN KHO',vID: 'A03',)),
-                      (Route<dynamic> route) => false); */
+                          builder: (BuildContext context) => const MyHomePage(title: 'CHUYỂN KHO',vID: vIDChuyenKho,)),
+                      (Route<dynamic> route) => false);
                    },
                    child: const Text(
                      'CHUYỂN KHO',
