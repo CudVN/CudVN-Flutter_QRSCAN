@@ -10,7 +10,7 @@ class IN02M {
   String? employeeName;
   String? createDate;
   String? createBy;
-  String? whID;
+  String? whid;
   String? whName;
   String? remark2;
   String? customerID;
@@ -28,7 +28,7 @@ class IN02M {
       this.employeeName,
       this.createDate,
       this.createBy,
-      this.whID,
+      this.whid,
       this.whName,
       this.remark2,
       this.customerID,
@@ -46,7 +46,7 @@ class IN02M {
     employeeName = json['employeeName'];
     createDate = json['createDate'];
     createBy = json['createBy'];
-    whID = json['whid'];
+    whid = json['whid'];
     whName = json['whName'];
     remark2 = json['remark2'];
     customerID = json['customerID'];
@@ -66,7 +66,7 @@ class IN02M {
     data['employeeName'] = employeeName;
     data['createDate'] = createDate;
     data['createBy'] = createBy;
-    data['whid'] = whID;
+    data['whid'] = whid;
     data['whName'] = whName;
     data['remark2'] = remark2;
     data['customerID'] = customerID;

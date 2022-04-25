@@ -32,7 +32,6 @@ class _AddIN02MState extends State<AddIN02M> {
   List<Employee> employees = [];
   List<Customer> customers = [];
   List<WareHouse> wareHouses = [];
-  List<Customer> whid = [];
   List<SerialView> serials = [];
   bool checkSaved = false;
 
@@ -90,13 +89,13 @@ class _AddIN02MState extends State<AddIN02M> {
     return parsed.map<WareHouse>((json) => WareHouse.fromJson(json)).toList();
   }
   //Lưu dữ liệu khi tạo phiếu xuất kho
-  Future<int> createIN02M(http.Client client, IN02M in02m) async {
+  Future<int> createIN02M(http.Client client, IN02M in02m) async {    
     final response = await client.post(
       Uri.parse(base + 'IN02M/'),
       headers: <String, String>{
         'Content-Type': 'application/json',
       },
-
+      
       body: jsonEncode(in02m
           .toJson()), // jsonEncode(<String, dynamic>{'user': in02m.toJson()}),
     );
@@ -180,7 +179,7 @@ class _AddIN02MState extends State<AddIN02M> {
             .employeeName,
         createDate: DateTime.now().toString(),
         createBy: userName,
-        whID: widget.vID == vIDChuyenKho ? _mySelectionWHID : null,
+        whid: widget.vID == vIDChuyenKho ? _mySelectionWHID : null,
         whName: widget.vID == vIDChuyenKho ? wareHouses.where((e) => e.oid == _mySelectionWHID).first.wName : null,
         remark2: 'remark2',
         customerID: widget.vID == vIDXuatBan ? _mySelectionCustomer : null,
@@ -193,6 +192,7 @@ class _AddIN02MState extends State<AddIN02M> {
         tempIssue: widget.vID == vIDXuatBan ? null : _xuatTam,
         seris: _lstSerial,
       );
+      
       createIN02M(http.Client(), _in02);
       checkSaved = true;
     } else {
