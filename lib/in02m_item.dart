@@ -13,7 +13,7 @@ class IN02MList extends StatelessWidget {
   final List<IN02M> in02ms;
   final String vID;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return ListView.builder(
         itemCount: in02ms.length,
         itemBuilder: (context, index) {
@@ -41,11 +41,12 @@ class IN02MList extends StatelessWidget {
                       ]),
                       vID == vIDXuatBan ? Text(
                         'Khách hàng: ${in02ms[index].customerName}',
-                      ) : Text(
-                        'Nhân viên: ${in02ms[index].employeeName}'),
+                      ) : (vID==vIDXuatSX ? Text(
+                        'Nhân viên: ${in02ms[index].employeeName}')
+                         : Text(
+                        'Kho: ${in02ms[index].whName}'))
                     ]),
-              ),
-              // ignore: avoid_print
+              ),              
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(

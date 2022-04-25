@@ -181,6 +181,7 @@ class _AddIN02MState extends State<AddIN02M> {
         createDate: DateTime.now().toString(),
         createBy: userName,
         whID: widget.vID == vIDChuyenKho ? _mySelectionWHID : null,
+        whName: widget.vID == vIDChuyenKho ? wareHouses.where((e) => e.oid == _mySelectionWHID).first.wName : null,
         remark2: 'remark2',
         customerID: widget.vID == vIDXuatBan ? _mySelectionCustomer : null,
         customerName: widget.vID == vIDXuatBan

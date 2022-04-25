@@ -64,7 +64,7 @@ class PageDetail extends StatelessWidget {
                       content: in02m.createBy ?? 'NULL')
                     : ItemRichText(
                       title: 'Kho nhập',
-                      content: in02m.whID ?? 'NULL')) 
+                      content: in02m.whName ?? 'NULL')) 
                   ),
                   ItemRichText(
                     title: 'Số phiếu',
